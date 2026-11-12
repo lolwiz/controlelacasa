@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Controle Financeiro – La Casa Mix</title>
+<meta name="description" content="Controle financeiro da La Casa Mix: lançamento diário das vendas de Almoço, Noite e Bebidas e resumo mensal com acompanhamento de metas.">
+<meta name="theme-color" content="#0c0c0c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="La Casa Mix">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{--red:#d23b42;--red2:#a82a30;--blk:#111;--blk2:#1c1c1c;--cinza:#2a2a2a}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#111;
+       background:#151515 repeating-linear-gradient(90deg,#1b1b1b 0 14px,#121212 14px 17px,#181818 17px 30px,#0e0e0e 30px 32px);
+       min-height:100vh;
+       padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .hidden{display:none!important}
+  button{font:inherit;cursor:pointer}
+  input,select{font:inherit}
+
+  /* LOGIN */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .login-box{background:#1c1c1c;border:2px solid var(--red);border-radius:16px;padding:24px;width:100%;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,.6);color:#fff}
+  .login-box img{width:100%;border-radius:10px;display:block;margin-bottom:14px}
+  .login-box h1{color:#fff;margin:0 0 4px;font-size:22px;text-align:center;letter-spacing:1px;text-transform:uppercase}
+  .login-box p{margin:0 0 16px;text-align:center;color:#bbb;font-size:14px}
+  .login-box label{display:block;font-size:13px;font-weight:bold;margin:10px 0 4px;color:#eee}
+  .login-box input[type=password]{width:100%;padding:12px;border:1px solid #444;background:#111;color:#fff;border-radius:8px;font-size:16px}
+  .login-box input[type=password]:focus{outline:2px solid var(--red);border-color:var(--red)}
+  .chk{display:flex!important;align-items:center;gap:8px;font-weight:normal!important}
+  .chk input{accent-color:var(--red)}
+  .btn{background:var(--red);color:#fff;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;letter-spacing:.3px}
+  .btn:hover{background:var(--red2)}
+  .btn.sec{background:#2b2b2b;color:#fff;border:1px solid #444}
+  .btn.sec:hover{background:#3a3a3a}
+  .btn.full{width:100%;margin-top:16px}
+  .erro{color:#ff6b72;font-size:13px;min-height:18px;margin-top:8px;text-align:center}
+
+  /* TOPO */
+  header{background:#0c0c0c;border-bottom:3px solid var(--red);padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+  header .mini{height:42px;width:42px;border-radius:8px;object-fit:cover}
+  .tabs{display:flex;gap:6px;flex:1;min-width:250px}
+  .tab{flex:1;max-width:240px;border:2px solid var(--red);background:transparent;color:#fff;padding:10px;border-radius:8px;font-weight:bold;letter-spacing:.5px}
+  .tab.ativa{background:var(--red)}
+  .status{font-size:12px;padding:6px 10px;border-radius:20px;background:#1e3a23;color:#9be7a5;white-space:nowrap}
+  .status.off{background:#4a3510;color:#ffcc80}
+  .status.err{background:#4a1518;color:#ff9a9f}
+  .status.loc{background:#2b2b2b;color:#ddd}
+  main{padding:14px;max-width:1300px;margin:0 auto}
+
+  /* CAPA */
+  .capa{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:center;background:#0d0d0d;border:1px solid #2c2c2c;border-left:6px solid var(--red);border-radius:14px;padding:14px;margin-bottom:16px;color:#fff}
+  .capa img{width:100%;border-radius:10px;display:block}
+  .capa h2{margin:0 0 8px;font-size:clamp(18px,2.4vw,26px);text-transform:uppercase;letter-spacing:1px}
+  .capa h2 span{color:var(--red)}
+  .capa p{margin:0 0 10px;color:#cfcfcf;line-height:1.5;font-size:15px}
+  .capa ul{margin:0;padding-left:18px;color:#cfcfcf;font-size:14px;line-height:1.6}
+  .capa li::marker{color:var(--red)}
+  @media (max-width:760px){.capa{grid-template-columns:1fr}}
+
+  .titulo{background:#0d0d0d;border:2px solid var(--red);outline:1px solid #fff;outline-offset:-6px;text-align:center;
+          color:#fff;font-weight:900;font-size:clamp(20px,4.5vw,44px);padding:16px 8px;margin:0 0 16px;letter-spacing:1px;text-transform:uppercase}
+  .titulo span{color:var(--red)}
+  .painel{background:#fff;border-radius:10px;padding:12px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.4);border-top:4px solid var(--red)}
+  .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+  .form label{font-size:12px;font-weight:bold;color:var(--red2);display:block;margin-bottom:4px;text-transform:uppercase}
+  .form input{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;font-size:16px}
+  .form input:focus{outline:2px solid var(--red);border-color:var(--red)}
+  .form .acoes{display:flex;gap:6px}
+  .form .acoes .btn{flex:1}
+  .filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px;font-weight:bold}
+  .filtros select{padding:8px;border:1px solid #bbb;border-radius:6px;font-size:15px}
+
+  .tabela-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+  table{border-collapse:collapse;width:100%;min-width:720px;font-size:16px;background:#fff}
+  td,th{padding:7px 10px}
+  .money{display:flex;justify-content:space-between;gap:10px;white-space:nowrap}
+  .dash{display:block;text-align:center}
+
+  /* CONTROLE FINANCEIRO */
+  #tbControle th{background:#0d0d0d;color:#fff;font-size:18px;padding:10px;border-bottom:3px solid var(--red)}
+  #tbControle tbody tr:nth-child(odd){background:#fff}
+  #tbControle tbody tr:nth-child(even){background:#ececec}
+  #tbControle tbody tr:hover{background:#fbe3e4}
+  #tbControle tbody td{border-right:1px solid #ddd;border-bottom:1px solid #ddd}
+  #tbControle td.tot{font-weight:bold}
+  #tbControle tfoot td{font-weight:bold;color:#fff;background:var(--red);font-size:17px}
+  .ic{background:none;border:0;font-size:18px;padding:2px 6px}
+  .vazio{text-align:center;color:#666;padding:20px!important;background:#fff!important}
+
+  /* RESUMO */
+  #tbResumo th{background:#0d0d0d;color:#fff;font-size:17px;padding:10px;border-bottom:3px solid var(--red)}
+  #tbResumo tbody tr:nth-child(odd){background:#e6e6e6}
+  #tbResumo tbody tr:nth-child(even){background:#fff}
+  #tbResumo tbody td{font-size:16px}
+  #tbResumo td.mes{text-align:center;font-weight:bold}
+  #tbResumo td.mes small{color:var(--red2)}
+  #tbResumo td.tv{font-weight:bold}
+  #tbResumo tfoot td{color:#fff;font-weight:bold;font-size:17px;background:#0d0d0d;border-top:3px solid var(--red)}
+  #tbResumo tfoot .neg{color:#ff6b72}
+  .meta-in{width:100%;min-width:120px;padding:7px;border:2px solid var(--red);border-radius:6px;text-align:right;font-size:16px;background:#fff8f8;font-weight:bold}
+  .meta-in:focus{outline:2px solid #111}
+  .neg{color:#e00000;font-weight:bold}
+  td.status-meta{text-align:center;font-weight:bold;white-space:nowrap;min-width:190px}
+  td.ok{background:linear-gradient(90deg,#1a3fd6,#5b8cff)!important;color:#fff!important}
+  td.nok{background:linear-gradient(90deg,#c62828,#ff6b6b)!important;color:#fff!important}
+  .dica{font-size:12px;color:#ccc;margin:10px 2px 0}
+  .dica b{color:#fff}
+  footer{text-align:center;color:#888;font-size:12px;padding:18px 10px 24px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login">
+  <form class="login-box" id="fmLogin" autocomplete="off">
+    <img src="logo.jpg" alt="La Casa Mix">
+    <h1>Controle Financeiro</h1>
+    <p id="lgSub">Digite sua senha para entrar</p>
+    <label for="lgSenha">Senha</label>
+    <input type="password" id="lgSenha" required>
+    <div id="lgConfBox" class="hidden">
+      <label for="lgConf">Confirmar senha</label>
+      <input type="password" id="lgConf">
+    </div>
+    <label class="chk"><input type="checkbox" id="lgManter" checked> Manter conectado neste aparelho</label>
+    <button class="btn full" type="submit" id="lgBtn">Entrar</button>
+    <div class="erro" id="lgErro"></div>
+  </form>
+</section>
+
+<!-- APP -->
+<section id="app" class="hidden">
+  <header>
+    <img class="mini" src="icon-192.png" alt="La Casa Mix">
+    <div class="tabs">
+      <button type="button" class="tab ativa" data-tab="controle">CONTROLE FINANCEIRO</button>
+      <button type="button" class="tab" data-tab="resumo">RESUMO</button>
+    </div>
+    <span class="status" id="status">…</span>
+    <button type="button" class="btn sec" id="btSync" title="Sincronizar agora">⟳</button>
+    <button type="button" class="btn sec" id="btSair">Sair</button>
+  </header>
+
+  <main>
+    <section class="capa">
+      <img src="logo.jpg" alt="Logo La Casa Mix">
+      <div>
+        <h2>Controle Financeiro <span>La Casa Mix</span></h2>
+        <p>Painel de vendas da La Casa Mix. Lance as vendas do dia e acompanhe o resultado do mês e do ano em relação à meta.</p>
+        <ul>
+          <li><b>Controle Financeiro:</b> vendas diárias de Almoço, Noite e Bebidas, com total automático.</li>
+          <li><b>Resumo:</b> totais por mês, meta, variação e status da meta.</li>
+          <li>Funciona online e offline, com sincronização entre aparelhos.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ABA CONTROLE FINANCEIRO -->
+    <div id="aba-controle">
+      <div class="titulo">Vendas Mensal <span>Estabelecimentos</span></div>
+
+      <form class="painel form" id="fmLanc">
+        <div><label for="inData">Data</label><input type="date" id="inData" required></div>
+        <div><label for="inAlm">La Casa Almoço (R$)</label><input id="inAlm" inputmode="decimal" placeholder="0,00"></div>
+        <div><label for="inNoi">La Casa Noite (R$)</label><input id="inNoi" inputmode="decimal" placeholder="0,00"></div>
+        <div><label for="inBeb">La Casa Bebidas (R$)</label><input id="inBeb" inputmode="decimal" placeholder="0,00"></div>
+        <div class="acoes">
+          <button class="btn" type="submit" id="btSalvar">Adicionar</button>
+          <button class="btn sec hidden" type="button" id="btCancelar">Cancelar</button>
+        </div>
+      </form>
+
+      <div class="painel filtros">
+        <label>Mês <select id="fMes"></select></label>
+        <label>Ano <select id="fAno"></select></label>
+      </div>
+
+      <div class="tabela-wrap">
+        <table id="tbControle">
+          <thead><tr>
+            <th>Data</th><th>La Casa<br>Almoço (R$)</th><th>La Casa<br>Noite (R$)</th>
+            <th>La Casa<br>Bebidas (R$)</th><th>Total (R$)</th><th></th>
+          </tr></thead>
+          <tbody id="tbodyControle"></tbody>
+          <tfoot id="tfootControle"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ABA RESUMO -->
+    <div id="aba-resumo" class="hidden">
+      <div class="painel filtros">
+        <label>Ano <select id="rAno"></select></label>
+      </div>
+      <div class="tabela-wrap">
+        <table id="tbResumo">
+          <thead><tr>
+            <th>MÊS</th><th>La Casa<br>Almoço (R$)</th><th>La Casa<br>Noite (R$)</th><th>La Casa<br>Bebidas (R$)</th>
+            <th>TOTAL<br>VENDAS (R$)</th><th>META<br>MÊS (R$)</th><th>Variação<br>(R$)</th><th>META<br>BATIDA</th>
+          </tr></thead>
+          <tbody id="tbodyResumo"></tbody>
+          <tfoot id="tfootResumo"></tfoot>
+        </table>
+      </div>
+      <p class="dica">Somente o campo <b>META MÊS</b> é editável. Os demais valores vêm automaticamente da aba Controle Financeiro.</p>
+    </div>
+  </main>
+  <footer>La Casa Mix • Controle Financeiro</footer>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
