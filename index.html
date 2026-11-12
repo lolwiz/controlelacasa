@@ -116,7 +116,10 @@
   #tbMensal tfoot .neg{color:#ff6b72}
   #tbMensal tfoot .pos{color:#8fb0ff}
   #tbMensal.t-meta{min-width:640px}
-  #tbMensal.t-res{min-width:980px}
+  #tbMensal.t-res{min-width:900px}
+  #tbMensal.t-est{min-width:760px}
+  #tbMensal.t-acu{min-width:900px}
+  #tbMensal td.acum{background:rgba(210,59,66,.07)}
   #tbMensal.t-tra{max-width:520px;margin:0 auto}
   .tabela-wrap.estreita{max-width:520px;margin:0 auto}
   .meta-in{width:100%;min-width:120px;padding:7px;border:2px solid var(--red);border-radius:6px;text-align:right;font-size:16px;background:#fff8f8;color:#111;font-weight:bold;min-height:40px}
@@ -156,7 +159,7 @@
 
     /* tabelas viram cartões */
     .tabela-wrap{overflow:visible;box-shadow:none;border-radius:0}
-    table,#tbControle,#tbMensal.t-meta,#tbMensal.t-res{min-width:0;background:transparent}
+    table,#tbControle,#tbMensal.t-meta,#tbMensal.t-res,#tbMensal.t-est,#tbMensal.t-acu{min-width:0;background:transparent}
     table thead{display:none}
     table,table tbody,table tfoot,table tr,table td{display:block;width:100%}
     tbody tr,tfoot tr{background:#fff!important;border-radius:12px;margin-bottom:10px;overflow:hidden;
@@ -232,7 +235,9 @@
       <button type="button" class="tab" data-tab="noi">NOITE</button>
       <button type="button" class="tab" data-tab="beb">BEBIDAS</button>
       <button type="button" class="tab" data-tab="tra">TRANSPORTES</button>
-      <button type="button" class="tab resumo" data-tab="res">RESUMO ESTABELECIMENTOS</button>
+      <button type="button" class="tab" data-tab="acu">RESUMO MENSAL</button>
+      <button type="button" class="tab" data-tab="res">METAS RESUMO</button>
+      <button type="button" class="tab resumo" data-tab="est">RESUMO ESTABELECIMENTOS</button>
     </nav>
   </header>
 
@@ -246,7 +251,9 @@
           <li><b>Controle Financeiro:</b> vendas diárias de Almoço, Noite e Bebidas.</li>
           <li><b>Almoço, Noite e Bebidas:</b> vendas do mês com meta, variação e status.</li>
           <li><b>Transportes:</b> valores mensais lançados manualmente.</li>
-          <li><b>Resumo Estabelecimentos:</b> soma de todas as entradas e das metas.</li>
+          <li><b>Resumo Mensal:</b> entradas e metas do mês e acumuladas no ano.</li>
+          <li><b>Metas Resumo:</b> vendas de Almoço, Noite e Bebidas comparadas com a soma das metas.</li>
+          <li><b>Resumo Estabelecimentos:</b> soma de todos os estabelecimentos por mês, incluindo Transporte.</li>
         </ul>
       </div>
     </section>

@@ -1,5 +1,5 @@
 // Ao atualizar arquivos no GitHub, aumente o número da versão abaixo.
-const VERSAO = 'controle-financeiro-v4';
+const VERSAO = 'controle-financeiro-v6';
 const ARQUIVOS = ['./', './index.html', './app.js', './manifest.json', './logo.jpg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

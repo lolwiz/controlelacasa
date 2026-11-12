@@ -1,6 +1,6 @@
 'use strict';
 /* =========================================================
-   CONTROLE FINANCEIRO – LA CASA MIX  (v4)
+   CONTROLE FINANCEIRO – LA CASA MIX  (v6)
    ---------------------------------------------------------
    API_URL: URL do "App da Web" do Google Apps Script (/exec).
    Deixe vazio ('') para usar só no aparelho (modo local).
@@ -122,7 +122,7 @@ function sair() {
 }
 
 /* ---------------- ABAS ---------------- */
-const ABAS = ['controle', 'alm', 'noi', 'beb', 'tra', 'res'];
+const ABAS = ['controle', 'alm', 'noi', 'beb', 'tra', 'acu', 'res', 'est'];
 let abaAtual = 'controle';
 document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => mostrarAba(b.dataset.tab)));
 function mostrarAba(t) {
@@ -268,7 +268,7 @@ function montarMensal() {
   preencherAnos($('#rAno'));
   const ano = $('#rAno').value, t = abaAtual, ks = chavesAno(ano);
   const tb = $('#tbMensal');
-  tb.className = t === 'res' ? 't-res' : t === 'tra' ? 't-tra' : 't-meta';
+  tb.className = t === 'res' ? 't-res' : t === 'est' ? 't-est' : t === 'acu' ? 't-acu' : t === 'tra' ? 't-tra' : 't-meta';
   $('#mWrap').classList.toggle('estreita', t === 'tra');
   $('#tbodyMensal').dataset.id = t + ano;
 
@@ -289,17 +289,35 @@ function montarMensal() {
     $('#tbodyMensal').innerHTML = ks.map((k, i) => `<tr data-k="${k}">${celMes(i)}
       <td data-label="Transporte">${inputValor('tra:' + k, `Transporte ${MESES_NOME[i]}`)}</td></tr>`).join('');
     $('#mDica').innerHTML = 'Digite o valor de <b>Transporte</b> de cada mês. Não há meta nesta aba.';
-  } else {
+  } else if (t === 'acu') {
+    $('#mTitulo').innerHTML = 'Resumo <span>Mensal</span>';
+    $('#theadMensal').innerHTML = `<tr><th>MÊS</th><th>ENTRADAS<br>MÊS (R$)</th><th>ENTRADAS<br>ACUMULADAS (R$)</th>
+      <th>META<br>MÊS (R$)</th><th>META<br>ACUMULADA (R$)</th><th>VARIAÇÃO<br>ACUMULADA (R$)</th><th>META ACUMULADA<br>BATIDA?</th></tr>`;
+    $('#tbodyMensal').innerHTML = ks.map((k, i) => `<tr data-k="${k}">${celMes(i)}
+      <td class="c-e opc" data-label="Entradas mês"></td><td class="c-ea acum tv" data-label="Entradas acumuladas"></td>
+      <td class="c-m opc" data-label="Meta mês"></td><td class="c-ma acum tv" data-label="Meta acumulada"></td>
+      <td class="c-var opc" data-label="Variação acumulada"></td><td class="c-s status-meta opc"></td></tr>`).join('');
+    $('#mDica').innerHTML = 'Tudo nesta aba é automático. <b>Entradas</b> = Almoço + Noite + Bebidas + Transporte. <b>Meta</b> = metas de Almoço + Noite + Bebidas. Os valores acumulados somam de janeiro até o mês da linha.';
+  } else if (t === 'est') {
     $('#mTitulo').innerHTML = 'Resumo <span>Estabelecimentos</span>';
     $('#theadMensal').innerHTML = `<tr><th>MÊS</th><th>La Casa<br>Almoço (R$)</th><th>La Casa<br>Noite (R$)</th>
-      <th>La Casa<br>Bebidas (R$)</th><th>La Casa<br>Transporte (R$)</th><th>TOTAL<br>ENTRADAS (R$)</th>
-      <th>META<br>MÊS (R$)</th><th>VARIAÇÃO<br>(R$)</th><th>META<br>BATIDA?</th></tr>`;
+      <th>La Casa<br>Bebidas (R$)</th><th>La Casa<br>Transporte (R$)</th><th>TOTAL<br>MÊS (R$)</th></tr>`;
     $('#tbodyMensal').innerHTML = ks.map((k, i) => `<tr data-k="${k}">${celMes(i)}
       <td class="c-a opc" data-label="Almoço"></td><td class="c-n opc" data-label="Noite"></td>
       <td class="c-b opc" data-label="Bebidas"></td><td class="c-t opc" data-label="Transporte"></td>
-      <td class="c-tot tv" data-label="Total entradas"></td><td class="c-m" data-label="Meta mês"></td>
+      <td class="c-tot tv" data-label="Total mês"></td></tr>`).join('');
+    $('#mDica').innerHTML = 'Tudo nesta aba é automático: soma <b>todos os estabelecimentos</b> (Almoço, Noite, Bebidas e Transporte) por mês.';
+  } else {
+    $('#mTitulo').innerHTML = 'Metas <span>Resumo</span>';
+    $('#theadMensal').innerHTML = `<tr><th>MÊS</th><th>La Casa<br>Almoço (R$)</th><th>La Casa<br>Noite (R$)</th>
+      <th>La Casa<br>Bebidas (R$)</th><th>TOTAL<br>VENDAS (R$)</th>
+      <th>META<br>MÊS (R$)</th><th>VARIAÇÃO<br>(R$)</th><th>META<br>BATIDA?</th></tr>`;
+    $('#tbodyMensal').innerHTML = ks.map((k, i) => `<tr data-k="${k}">${celMes(i)}
+      <td class="c-a opc" data-label="Almoço"></td><td class="c-n opc" data-label="Noite"></td>
+      <td class="c-b opc" data-label="Bebidas"></td>
+      <td class="c-tot tv" data-label="Total vendas"></td><td class="c-m" data-label="Meta mês"></td>
       <td class="c-var opc" data-label="Variação"></td><td class="c-s status-meta opc"></td></tr>`).join('');
-    $('#mDica').innerHTML = 'Tudo nesta aba é automático: soma as vendas, o Transporte e as <b>metas</b> das abas Almoço, Noite e Bebidas.';
+    $('#mDica').innerHTML = 'Tudo nesta aba é automático: soma as vendas e as <b>metas</b> das abas Almoço, Noite e Bebidas.';
   }
 }
 
@@ -332,30 +350,69 @@ function calcularMensal() {
     linhas.forEach(tr => { g += valor('tra:' + tr.dataset.k) || 0; });
     $('#tfootMensal').innerHTML = `<tr><td class="mes cab" data-label="TOTAL">${ano}</td>
       <td data-label="Transporte">${money(r2(g))}</td></tr>`;
-  } else {
-    const G = { a: 0, n: 0, b: 0, t: 0, m: 0 }; let tem = false;
+  } else if (t === 'acu') {
+    let aE = 0, aM = 0, temAlguma = false;
     linhas.forEach(tr => {
       const k = tr.dataset.k, vm = vendasMes(k), tr$ = valor('tra:' + k) || 0;
       const metas = ['alm', 'noi', 'beb'].map(x => valor(x + ':' + k));
-      const temM = metas.some(x => x != null), meta = temM ? r2(metas.reduce((s, x) => s + (x || 0), 0)) : null;
+      const temM = metas.some(x => x != null), meta = temM ? r2(metas.reduce((s, x) => s + (x || 0), 0)) : 0;
+      const ent = r2(vm.almoco + vm.noite + vm.bebidas + tr$);
+      aE = r2(aE + ent); aM = r2(aM + meta); if (temM) temAlguma = true;
+      tr.querySelector('.c-e').innerHTML = money(ent);
+      tr.querySelector('.c-ea').innerHTML = money(aE);
+      tr.querySelector('.c-m').innerHTML = temM ? money(meta, true) : '<span class="dash">-</span>';
+      tr.querySelector('.c-ma').innerHTML = temAlguma ? money(aM, true) : '<span class="dash">-</span>';
+      tr.querySelector('.c-var').innerHTML = temM ? variacao(r2(aE - aM)) : '<span class="dash">-</span>';
+      statusMeta(tr.querySelector('.c-s'), aE, temM ? aM : null);
+      tr.classList.toggle('sem-dados', !ent && !temM);
+    });
+    $('#tfootMensal').innerHTML = `<tr><td class="mes cab" data-label="TOTAL">${ano}</td>
+      <td data-label="Entradas ano">${money(aE)}</td><td data-label="Entradas acumuladas">${money(aE)}</td>
+      <td data-label="Meta ano">${temAlguma ? money(aM, true) : '<span class="dash">-</span>'}</td>
+      <td data-label="Meta acumulada">${temAlguma ? money(aM, true) : '<span class="dash">-</span>'}</td>
+      <td data-label="Variação">${temAlguma ? variacao(r2(aE - aM)) : '<span class="dash">-</span>'}</td>
+      <td class="status-meta" id="stTot"></td></tr>`;
+    statusMeta($('#stTot'), aE, temAlguma ? aM : null);
+  } else if (t === 'est') {
+    const G = { a: 0, n: 0, b: 0, t: 0 };
+    linhas.forEach(tr => {
+      const k = tr.dataset.k, vm = vendasMes(k), tr$ = valor('tra:' + k) || 0;
       const tot = r2(vm.almoco + vm.noite + vm.bebidas + tr$);
       G.a += vm.almoco; G.n += vm.noite; G.b += vm.bebidas; G.t += tr$;
-      if (temM) { G.m += meta; tem = true; }
       tr.querySelector('.c-a').innerHTML = money(vm.almoco);
       tr.querySelector('.c-n').innerHTML = money(vm.noite);
       tr.querySelector('.c-b').innerHTML = money(vm.bebidas);
       tr.querySelector('.c-t').innerHTML = money(tr$);
+      tr.querySelector('.c-tot').innerHTML = money(tot);
+      tr.classList.toggle('sem-dados', !tot);
+    });
+    $('#tfootMensal').innerHTML = `<tr><td class="mes cab" data-label="TOTAL">${ano}</td>
+      <td data-label="Almoço">${money(r2(G.a))}</td><td data-label="Noite">${money(r2(G.n))}</td>
+      <td data-label="Bebidas">${money(r2(G.b))}</td><td data-label="Transporte">${money(r2(G.t))}</td>
+      <td data-label="Total ano">${money(r2(G.a + G.n + G.b + G.t))}</td></tr>`;
+  } else {
+    const G = { a: 0, n: 0, b: 0, m: 0 }; let tem = false;
+    linhas.forEach(tr => {
+      const k = tr.dataset.k, vm = vendasMes(k);
+      const metas = ['alm', 'noi', 'beb'].map(x => valor(x + ':' + k));
+      const temM = metas.some(x => x != null), meta = temM ? r2(metas.reduce((s, x) => s + (x || 0), 0)) : null;
+      const tot = r2(vm.almoco + vm.noite + vm.bebidas);
+      G.a += vm.almoco; G.n += vm.noite; G.b += vm.bebidas;
+      if (temM) { G.m += meta; tem = true; }
+      tr.querySelector('.c-a').innerHTML = money(vm.almoco);
+      tr.querySelector('.c-n').innerHTML = money(vm.noite);
+      tr.querySelector('.c-b').innerHTML = money(vm.bebidas);
       tr.querySelector('.c-tot').innerHTML = money(tot);
       tr.querySelector('.c-m').innerHTML = temM ? money(meta, true) : '<span class="dash">-</span>';
       tr.querySelector('.c-var').innerHTML = temM ? variacao(r2(tot - meta)) : '<span class="dash">-</span>';
       statusMeta(tr.querySelector('.c-s'), tot, meta);
       tr.classList.toggle('sem-dados', !tot && !temM);
     });
-    const gT = r2(G.a + G.n + G.b + G.t), gM = r2(G.m);
+    const gT = r2(G.a + G.n + G.b), gM = r2(G.m);
     $('#tfootMensal').innerHTML = `<tr><td class="mes cab" data-label="TOTAL">${ano}</td>
       <td data-label="Almoço">${money(r2(G.a))}</td><td data-label="Noite">${money(r2(G.n))}</td>
-      <td data-label="Bebidas">${money(r2(G.b))}</td><td data-label="Transporte">${money(r2(G.t))}</td>
-      <td data-label="Total entradas">${money(gT)}</td>
+      <td data-label="Bebidas">${money(r2(G.b))}</td>
+      <td data-label="Total vendas">${money(gT)}</td>
       <td data-label="Meta ano">${tem ? money(gM, true) : '<span class="dash">-</span>'}</td>
       <td data-label="Variação">${tem ? variacao(r2(gT - gM)) : '<span class="dash">-</span>'}</td>
       <td class="status-meta" id="stTot"></td></tr>`;
