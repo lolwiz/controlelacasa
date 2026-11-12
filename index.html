@@ -4,27 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Controle Financeiro – La Casa Mix</title>
-<meta name="description" content="Controle financeiro da La Casa Mix: lançamento diário das vendas de Almoço, Noite e Bebidas e resumo mensal com acompanhamento de metas.">
+<meta name="description" content="Controle financeiro da La Casa Mix: vendas diárias, metas por estabelecimento, transportes e resumo dos estabelecimentos.">
 <meta name="theme-color" content="#0c0c0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="La Casa Mix">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <style>
-  :root{--red:#d23b42;--red2:#a82a30;--blk:#111;--blk2:#1c1c1c;--cinza:#2a2a2a}
+  :root{--red:#d23b42;--red2:#a82a30}
   *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
   body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#111;
        background:#151515 repeating-linear-gradient(90deg,#1b1b1b 0 14px,#121212 14px 17px,#181818 17px 30px,#0e0e0e 30px 32px);
-       min-height:100vh;
-       padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+       min-height:100vh;overflow-x:hidden;
+       padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
   .hidden{display:none!important}
-  button{font:inherit;cursor:pointer}
+  button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
   input,select{font:inherit}
 
   /* LOGIN */
-  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;padding-top:calc(20px + env(safe-area-inset-top))}
   .login-box{background:#1c1c1c;border:2px solid var(--red);border-radius:16px;padding:24px;width:100%;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,.6);color:#fff}
   .login-box img{width:100%;border-radius:10px;display:block;margin-bottom:14px}
   .login-box h1{color:#fff;margin:0 0 4px;font-size:22px;text-align:center;letter-spacing:1px;text-transform:uppercase}
@@ -33,8 +35,8 @@
   .login-box input[type=password]{width:100%;padding:12px;border:1px solid #444;background:#111;color:#fff;border-radius:8px;font-size:16px}
   .login-box input[type=password]:focus{outline:2px solid var(--red);border-color:var(--red)}
   .chk{display:flex!important;align-items:center;gap:8px;font-weight:normal!important}
-  .chk input{accent-color:var(--red)}
-  .btn{background:var(--red);color:#fff;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;letter-spacing:.3px}
+  .chk input{accent-color:var(--red);width:18px;height:18px}
+  .btn{background:var(--red);color:#fff;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;letter-spacing:.3px;min-height:44px}
   .btn:hover{background:var(--red2)}
   .btn.sec{background:#2b2b2b;color:#fff;border:1px solid #444}
   .btn.sec:hover{background:#3a3a3a}
@@ -42,11 +44,18 @@
   .erro{color:#ff6b72;font-size:13px;min-height:18px;margin-top:8px;text-align:center}
 
   /* TOPO */
-  header{background:#0c0c0c;border-bottom:3px solid var(--red);padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+  header{background:#0c0c0c;border-bottom:3px solid var(--red);padding:8px 14px;padding-top:calc(8px + env(safe-area-inset-top));
+         display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
   header .mini{height:42px;width:42px;border-radius:8px;object-fit:cover}
-  .tabs{display:flex;gap:6px;flex:1;min-width:250px}
-  .tab{flex:1;max-width:240px;border:2px solid var(--red);background:transparent;color:#fff;padding:10px;border-radius:8px;font-weight:bold;letter-spacing:.5px}
+  header .nome{color:#fff;font-weight:900;letter-spacing:1px;text-transform:uppercase;font-size:15px}
+  header .nome span{color:var(--red)}
+  .topo-dir{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .tabs{order:3;flex-basis:100%;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:1 0 auto;border:2px solid var(--red);background:transparent;color:#fff;padding:9px 14px;border-radius:8px;font-weight:bold;letter-spacing:.4px;min-height:42px;white-space:nowrap;font-size:14px}
   .tab.ativa{background:var(--red)}
+  .tab.resumo{border-color:#fff}
+  .tab.resumo.ativa{background:#fff;color:#111}
   .status{font-size:12px;padding:6px 10px;border-radius:20px;background:#1e3a23;color:#9be7a5;white-space:nowrap}
   .status.off{background:#4a3510;color:#ffcc80}
   .status.err{background:#4a1518;color:#ff9a9f}
@@ -61,28 +70,31 @@
   .capa p{margin:0 0 10px;color:#cfcfcf;line-height:1.5;font-size:15px}
   .capa ul{margin:0;padding-left:18px;color:#cfcfcf;font-size:14px;line-height:1.6}
   .capa li::marker{color:var(--red)}
-  @media (max-width:760px){.capa{grid-template-columns:1fr}}
 
   .titulo{background:#0d0d0d;border:2px solid var(--red);outline:1px solid #fff;outline-offset:-6px;text-align:center;
-          color:#fff;font-weight:900;font-size:clamp(20px,4.5vw,44px);padding:16px 8px;margin:0 0 16px;letter-spacing:1px;text-transform:uppercase}
+          color:#fff;font-weight:900;font-size:clamp(18px,4vw,40px);padding:16px 10px;margin:0 0 16px;letter-spacing:1px;text-transform:uppercase}
   .titulo span{color:var(--red)}
   .painel{background:#fff;border-radius:10px;padding:12px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.4);border-top:4px solid var(--red)}
   .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
   .form label{font-size:12px;font-weight:bold;color:var(--red2);display:block;margin-bottom:4px;text-transform:uppercase}
-  .form input{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;font-size:16px}
+  .form input{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;font-size:16px;min-height:44px;background:#fff;color:#111}
   .form input:focus{outline:2px solid var(--red);border-color:var(--red)}
   .form .acoes{display:flex;gap:6px}
   .form .acoes .btn{flex:1}
   .filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px;font-weight:bold}
-  .filtros select{padding:8px;border:1px solid #bbb;border-radius:6px;font-size:15px}
+  .filtros label{display:flex;align-items:center;gap:6px}
+  .filtros select{padding:8px;border:1px solid #bbb;border-radius:6px;font-size:16px;min-height:40px;background:#fff;color:#111}
 
   .tabela-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.5)}
-  table{border-collapse:collapse;width:100%;min-width:720px;font-size:16px;background:#fff}
+  table{border-collapse:collapse;width:100%;font-size:16px;background:#fff}
   td,th{padding:7px 10px}
   .money{display:flex;justify-content:space-between;gap:10px;white-space:nowrap}
   .dash{display:block;text-align:center}
+  .neg{color:#e00000;font-weight:bold}
+  .pos{color:#1a3fd6;font-weight:bold}
 
   /* CONTROLE FINANCEIRO */
+  #tbControle{min-width:720px}
   #tbControle th{background:#0d0d0d;color:#fff;font-size:18px;padding:10px;border-bottom:3px solid var(--red)}
   #tbControle tbody tr:nth-child(odd){background:#fff}
   #tbControle tbody tr:nth-child(even){background:#ececec}
@@ -90,28 +102,98 @@
   #tbControle tbody td{border-right:1px solid #ddd;border-bottom:1px solid #ddd}
   #tbControle td.tot{font-weight:bold}
   #tbControle tfoot td{font-weight:bold;color:#fff;background:var(--red);font-size:17px}
-  .ic{background:none;border:0;font-size:18px;padding:2px 6px}
+  .ic{background:none;border:0;font-size:18px;padding:6px 8px;min-width:40px;min-height:40px}
   .vazio{text-align:center;color:#666;padding:20px!important;background:#fff!important}
 
-  /* RESUMO */
-  #tbResumo th{background:#0d0d0d;color:#fff;font-size:17px;padding:10px;border-bottom:3px solid var(--red)}
-  #tbResumo tbody tr:nth-child(odd){background:#e6e6e6}
-  #tbResumo tbody tr:nth-child(even){background:#fff}
-  #tbResumo tbody td{font-size:16px}
-  #tbResumo td.mes{text-align:center;font-weight:bold}
-  #tbResumo td.mes small{color:var(--red2)}
-  #tbResumo td.tv{font-weight:bold}
-  #tbResumo tfoot td{color:#fff;font-weight:bold;font-size:17px;background:#0d0d0d;border-top:3px solid var(--red)}
-  #tbResumo tfoot .neg{color:#ff6b72}
-  .meta-in{width:100%;min-width:120px;padding:7px;border:2px solid var(--red);border-radius:6px;text-align:right;font-size:16px;background:#fff8f8;font-weight:bold}
+  /* TABELAS MENSAIS (Almoço, Noite, Bebidas, Transportes, Resumo) */
+  #tbMensal th{background:#0d0d0d;color:#fff;font-size:16px;padding:10px;border-bottom:3px solid var(--red);text-transform:uppercase}
+  #tbMensal tbody tr:nth-child(odd){background:#e6e6e6}
+  #tbMensal tbody tr:nth-child(even){background:#fff}
+  #tbMensal tbody td{font-size:16px}
+  #tbMensal td.mes{text-align:center;font-weight:bold}
+  #tbMensal td.tv{font-weight:bold}
+  #tbMensal tfoot td{color:#fff;font-weight:bold;font-size:17px;background:#0d0d0d;border-top:3px solid var(--red)}
+  #tbMensal tfoot .neg{color:#ff6b72}
+  #tbMensal tfoot .pos{color:#8fb0ff}
+  #tbMensal.t-meta{min-width:640px}
+  #tbMensal.t-res{min-width:980px}
+  #tbMensal.t-tra{max-width:520px;margin:0 auto}
+  .tabela-wrap.estreita{max-width:520px;margin:0 auto}
+  .meta-in{width:100%;min-width:120px;padding:7px;border:2px solid var(--red);border-radius:6px;text-align:right;font-size:16px;background:#fff8f8;color:#111;font-weight:bold;min-height:40px}
   .meta-in:focus{outline:2px solid #111}
-  .neg{color:#e00000;font-weight:bold}
   td.status-meta{text-align:center;font-weight:bold;white-space:nowrap;min-width:190px}
   td.ok{background:linear-gradient(90deg,#1a3fd6,#5b8cff)!important;color:#fff!important}
   td.nok{background:linear-gradient(90deg,#c62828,#ff6b6b)!important;color:#fff!important}
   .dica{font-size:12px;color:#ccc;margin:10px 2px 0}
   .dica b{color:#fff}
   footer{text-align:center;color:#888;font-size:12px;padding:18px 10px 24px}
+  .so-cel{display:none}
+
+  @media (max-width:900px){
+    .capa{grid-template-columns:1fr}
+    .capa ul{display:none}
+  }
+
+  /* ============ SMARTPHONE ============ */
+  @media (max-width:700px){
+    header{padding:6px 10px;padding-top:calc(6px + env(safe-area-inset-top))}
+    header .mini{height:36px;width:36px}
+    header .nome{display:none}
+    .tab{font-size:12.5px;padding:8px 10px;min-height:40px}
+    .status{font-size:11px;padding:5px 8px;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
+    #btSync,#btSair{padding:8px 12px;min-height:38px}
+    main{padding:10px}
+
+    .capa{padding:10px;gap:8px;border-left-width:4px;margin-bottom:12px}
+    .capa h2{font-size:16px;margin-bottom:4px}
+    .capa p{font-size:13px;margin:0}
+    .titulo{font-size:19px;padding:12px 8px;margin-bottom:12px;outline-offset:-5px}
+
+    .form{grid-template-columns:1fr 1fr;gap:8px}
+    .form > div:first-child,.form > div:nth-child(4),.form .acoes{grid-column:1 / -1}
+    .filtros label{flex:1}
+    .filtros select{flex:1;width:100%}
+
+    /* tabelas viram cartões */
+    .tabela-wrap{overflow:visible;box-shadow:none;border-radius:0}
+    table,#tbControle,#tbMensal.t-meta,#tbMensal.t-res{min-width:0;background:transparent}
+    table thead{display:none}
+    table,table tbody,table tfoot,table tr,table td{display:block;width:100%}
+    tbody tr,tfoot tr{background:#fff!important;border-radius:12px;margin-bottom:10px;overflow:hidden;
+                      box-shadow:0 2px 8px rgba(0,0,0,.45);border-left:5px solid var(--red)}
+    td{display:flex!important;align-items:center;justify-content:space-between;gap:12px;
+       padding:8px 12px!important;border:0!important;border-bottom:1px solid #eee!important;text-align:right}
+    td:last-child{border-bottom:0!important}
+    td[data-label]::before{content:attr(data-label);font-weight:bold;font-size:13px;color:#555;text-align:left;flex-shrink:0}
+    td .money{flex:1;justify-content:flex-end;gap:6px}
+    td .dash{text-align:right}
+    td.cab{background:#0d0d0d!important;color:#fff!important;font-weight:bold;font-size:16px}
+    td.cab::before{color:var(--red)!important;font-size:12px!important}
+    td.acoes-td{justify-content:flex-end;background:#fafafa;padding:2px 8px!important}
+    .vazio{display:block!important;text-align:center!important;border-radius:12px}
+
+    #tbControle tfoot tr{border-left-color:#fff}
+    #tbControle tfoot td{background:var(--red)!important;color:#fff;font-size:15px;border-bottom:1px solid rgba(255,255,255,.25)!important}
+    #tbControle tfoot td::before{color:#fff!important}
+    #tbControle tfoot td.vazia{display:none!important}
+
+    #tbMensal tbody td{font-size:15px}
+    #tbMensal td.mes{text-align:left}
+    .meta-in{max-width:58%;min-width:0;flex:1}
+    td.status-meta{min-width:0;justify-content:center!important;font-size:15px;padding:10px!important}
+    td.status-meta::before{display:none}
+    #tbMensal tbody tr.sem-dados{border-left-color:#666}
+    #tbMensal tbody tr.sem-dados td.opc{display:none!important}
+    #tbMensal tfoot td{background:#0d0d0d!important;color:#fff;font-size:15px;border-bottom:1px solid #333!important}
+    #tbMensal tfoot td::before{color:#bbb}
+    #tbMensal tfoot td.cab{background:var(--red)!important}
+    #tbMensal tfoot td.cab::before{color:#fff!important}
+    #tbMensal tfoot td.ok{background:linear-gradient(90deg,#1a3fd6,#5b8cff)!important}
+    #tbMensal tfoot td.nok{background:linear-gradient(90deg,#c62828,#ff6b6b)!important}
+    .tabela-wrap.estreita{max-width:none}
+    .so-pc{display:none}
+    .so-cel{display:inline}
+  }
 </style>
 </head>
 <body>
@@ -138,13 +220,20 @@
 <section id="app" class="hidden">
   <header>
     <img class="mini" src="icon-192.png" alt="La Casa Mix">
-    <div class="tabs">
-      <button type="button" class="tab ativa" data-tab="controle">CONTROLE FINANCEIRO</button>
-      <button type="button" class="tab" data-tab="resumo">RESUMO</button>
+    <div class="nome">La Casa <span>Mix</span></div>
+    <div class="topo-dir">
+      <span class="status" id="status">…</span>
+      <button type="button" class="btn sec" id="btSync" title="Sincronizar agora">⟳</button>
+      <button type="button" class="btn sec" id="btSair">Sair</button>
     </div>
-    <span class="status" id="status">…</span>
-    <button type="button" class="btn sec" id="btSync" title="Sincronizar agora">⟳</button>
-    <button type="button" class="btn sec" id="btSair">Sair</button>
+    <nav class="tabs" id="tabs">
+      <button type="button" class="tab ativa" data-tab="controle">CONTROLE FINANCEIRO</button>
+      <button type="button" class="tab" data-tab="alm">ALMOÇO</button>
+      <button type="button" class="tab" data-tab="noi">NOITE</button>
+      <button type="button" class="tab" data-tab="beb">BEBIDAS</button>
+      <button type="button" class="tab" data-tab="tra">TRANSPORTES</button>
+      <button type="button" class="tab resumo" data-tab="res">RESUMO ESTABELECIMENTOS</button>
+    </nav>
   </header>
 
   <main>
@@ -152,11 +241,12 @@
       <img src="logo.jpg" alt="Logo La Casa Mix">
       <div>
         <h2>Controle Financeiro <span>La Casa Mix</span></h2>
-        <p>Painel de vendas da La Casa Mix. Lance as vendas do dia e acompanhe o resultado do mês e do ano em relação à meta.</p>
+        <p>Painel de vendas da La Casa Mix. Lance as vendas do dia e acompanhe as metas de cada estabelecimento e o resultado geral.</p>
         <ul>
-          <li><b>Controle Financeiro:</b> vendas diárias de Almoço, Noite e Bebidas, com total automático.</li>
-          <li><b>Resumo:</b> totais por mês, meta, variação e status da meta.</li>
-          <li>Funciona online e offline, com sincronização entre aparelhos.</li>
+          <li><b>Controle Financeiro:</b> vendas diárias de Almoço, Noite e Bebidas.</li>
+          <li><b>Almoço, Noite e Bebidas:</b> vendas do mês com meta, variação e status.</li>
+          <li><b>Transportes:</b> valores mensais lançados manualmente.</li>
+          <li><b>Resumo Estabelecimentos:</b> soma de todas as entradas e das metas.</li>
         </ul>
       </div>
     </section>
@@ -193,22 +283,20 @@
       </div>
     </div>
 
-    <!-- ABA RESUMO -->
-    <div id="aba-resumo" class="hidden">
+    <!-- ABAS MENSAIS -->
+    <div id="aba-mensal" class="hidden">
+      <div class="titulo" id="mTitulo"></div>
       <div class="painel filtros">
         <label>Ano <select id="rAno"></select></label>
       </div>
-      <div class="tabela-wrap">
-        <table id="tbResumo">
-          <thead><tr>
-            <th>MÊS</th><th>La Casa<br>Almoço (R$)</th><th>La Casa<br>Noite (R$)</th><th>La Casa<br>Bebidas (R$)</th>
-            <th>TOTAL<br>VENDAS (R$)</th><th>META<br>MÊS (R$)</th><th>Variação<br>(R$)</th><th>META<br>BATIDA</th>
-          </tr></thead>
-          <tbody id="tbodyResumo"></tbody>
-          <tfoot id="tfootResumo"></tfoot>
+      <div class="tabela-wrap" id="mWrap">
+        <table id="tbMensal">
+          <thead id="theadMensal"></thead>
+          <tbody id="tbodyMensal"></tbody>
+          <tfoot id="tfootMensal"></tfoot>
         </table>
       </div>
-      <p class="dica">Somente o campo <b>META MÊS</b> é editável. Os demais valores vêm automaticamente da aba Controle Financeiro.</p>
+      <p class="dica" id="mDica"></p>
     </div>
   </main>
   <footer>La Casa Mix • Controle Financeiro</footer>
